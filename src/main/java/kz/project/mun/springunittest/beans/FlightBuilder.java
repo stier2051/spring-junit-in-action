@@ -3,29 +3,41 @@ package kz.project.mun.springunittest.beans;
 import kz.project.mun.springunittest.model.Country;
 import kz.project.mun.springunittest.model.Flight;
 import kz.project.mun.springunittest.model.Passenger;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@TestConfiguration
 public class FlightBuilder {
     private static Map<String, Country> countriesMap = new HashMap<>();
 
-    static {
-        countriesMap.put("AU", new Country("Australia", "AU"));
-        countriesMap.put("US", new Country("USA", "US"));
-        countriesMap.put("UK", new Country("United Kingdom", "UK"));
+    public FlightBuilder() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/countries_information.csv"))) {
+            String line = null;
+            do {
+                line = reader.readLine();
+                if (line != null) {
+                    String[] countriesString = line.toString().split(";");
+                    Country country = new Country(countriesString[0].trim(), countriesString[1].trim());
+                    countriesMap.put(countriesString[1].trim(), country);
+                }
+            } while (line != null);
+        }
+    }
+
+    @Bean
+    Map<String, Country> getCountriesMap() {
+        return Collections.unmodifiableMap(countriesMap);
     }
 
     @Bean
     Flight buildFlightFromCsv() throws IOException {
         Flight flight = new Flight("AA1234", 20);
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/flights_information.csv"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/flights_information.csv"))) {
             String line = null;
             do {
                 line = reader.readLine();

@@ -1,11 +1,19 @@
 package kz.project.mun.springunittest.model;
 
-import java.util.Objects;
+import jakarta.persistence.*;
 
+import java.util.Objects;
+@Entity
 public class Passenger {
+    @Id
+    @GeneratedValue
+    private Long id;
     private String name;
+    @ManyToOne
     private Country country;
     private boolean isRegistered;
+
+    public Passenger() {}
 
     public Passenger(String name) {
         this.name = name;
